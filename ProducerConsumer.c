@@ -18,12 +18,15 @@ static pthread_mutex_t c_mutex = PTHREAD_MUTEX_INITIALIZER;
 int count = 0;
 int demand = 0;
 
+int producerLock = 0;
+
 //prototypes:
 int producer();
 int consumer();
 
 int main(int argc, char *argv[]){
     srand(time(NULL));
+	void *result;
     int p_count = 1;
 	int c_count = DEFAULT;
     int arg;
@@ -49,6 +52,7 @@ int main(int argc, char *argv[]){
             }
         }
     }
+	
     pthread_mutex_lock(&c_mutex);
     printf("Producer(s): %d\n", p_count);
     printf("Consumer(s): %d\n", c_count);
@@ -73,13 +77,19 @@ int main(int argc, char *argv[]){
 
     for(i = 0; i < p_count; i++)
 	{
-        pthread_join(ptID[i], NULL);
+        pthread_join(ptID[i], &result);
+		printf("Joined %d with status: %ld\n", i, (intptr_t) result);
     }
+	
+	printf("Producer threads have joined. \n");
 	
     for(j = 0; j < c_count; j++)
 	{
-        pthread_join(ctID[j], NULL);
+        pthread_join(ctID[j], &result);
+		printf("Joined %d with status: %ld\n", j, (intptr_t) result);
     }
+	
+	printf("Consumer threads have joined. \n");
 	
     return 0;
 }
